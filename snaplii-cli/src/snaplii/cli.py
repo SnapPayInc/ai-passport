@@ -14,7 +14,7 @@ from snaplii.config_store import ConfigStore
 from snaplii.exceptions import SnapliiCliError
 from snaplii.output import print_error
 
-_DEFAULT_BASE_URL = "https://gateway.snaplii.com/gateway/mrpay"
+_DEFAULT_BASE_URL = "https://aipayment.snaplii.com"
 
 
 @click.group()
