@@ -19,7 +19,9 @@ def cashback_cmd(ctx, brand_id, amount):
     """Calculate cashback savings for a specific brand and amount."""
     client: GatewayClient = ctx.obj["client"]
     detail = client.get_card_brand_by_id(brand_id)
-    cards = detail.get("data", {}).get("cards", [])
+    # Gateway returns detail directly; prod wraps in "data"
+    brand_data = detail.get("data", detail) if isinstance(detail.get("data"), dict) else detail
+    cards = brand_data.get("cards", [])
 
     best_match = None
     for c in cards:
