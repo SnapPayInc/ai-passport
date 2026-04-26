@@ -64,7 +64,7 @@ class GatewayClient:
         self,
         item_id: str,
         price: str,
-        payment_method: str = "SNAPLII_CASH",
+        payment_method: str = "SNAPLII_CREDIT",
         payment_token: str | None = None,
         location_prov: str = "ON",
     ) -> dict:

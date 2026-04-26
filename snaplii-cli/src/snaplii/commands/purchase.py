@@ -7,7 +7,7 @@ from snaplii.output import print_json
 @click.command("purchase")
 @click.option("--item-id", required=True, help="Item ID (e.g. CB0000000000135-CT0000000000897)")
 @click.option("--price", required=True, help="Price in dollars (e.g. 50)")
-@click.option("--payment-method", default="SNAPLII_CASH", help="Payment method (SNAPLII_CASH, SNAPLII_CREDIT, SNAPLII_DEBIT)")
+@click.option("--payment-method", default="SNAPLII_CREDIT", help="Payment method")
 @click.option("--payment-token", default=None, help="Payment token (auto-derived by gateway if omitted)")
 @click.option("--prov", default="ON", help="Province code")
 @click.pass_context

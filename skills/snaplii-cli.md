@@ -76,7 +76,7 @@ This deferral matters: once card codes / PINs / barcode URLs enter the conversat
 
 Two-step confirm before calling `purchase`:
 
-1. Show **brand name, face value, exact dollar amount, and payment source (Snaplii Cash)** in plain text.
+1. Show **brand name, face value, exact dollar amount, and payment method** in plain text.
 2. Wait for explicit user confirmation ("yes", "confirm", "buy"). Treat anything else as cancellation.
 
 ```bash
@@ -89,7 +89,7 @@ snaplii purchase --item-id "CB...-CT..." --price 50
 
 If purchase fails, **do not retry automatically**. Show the user the error and ask. Common failure modes:
 
-- `insufficient balance` → ask the user to top up Snaplii Cash; do not re-attempt.
+- `insufficient balance` → ask the user to check their balance; do not re-attempt.
 - `401 / 403` → re-run `init`, or check that the API key has scope `PAY_WRITE`.
 - network / 5xx → ask the user before retrying.
 
