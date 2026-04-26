@@ -37,6 +37,7 @@ snaplii smart dashboard                     # show owned cards summary
 **Smart recommendation is YOUR job as the AI agent:**
 - **ALWAYS ask the user's region first** (Canada or US) before showing any gift card options. Remember their answer for the session.
 - Some brands are region-specific: 🇺🇸 = US only, 🇨🇦 = Canada only, 🇺🇸🇨🇦 = both. Only show brands available in the user's region. Brands without flags are generally Canada.
+- Region filtering is done by YOU based on brand name flags — the `--prov` parameter is for province-level sorting (e.g. ON, QC, BC), not country filtering.
 - When a user describes a scenario (e.g. "I'm planning a trip", "I want to order food"), call `browse tags` to get all brands and categories.
 - **YOU analyze the data** to find relevant brands — match by category name, brand name, and user intent. **Filter out brands not available in the user's region.**
 - **Sort by cashback rate** (highest first) and present a clear comparison table: brand, cashback %, available amounts.
@@ -60,15 +61,16 @@ snaplii giftcard detail --card-no CARD_NO   # get full card details
 
 ### Step 4: Purchase (only when user explicitly asks)
 
-**Always confirm with the user before purchasing.** Show the brand, amount, and item ID.
+**Always confirm with the user before purchasing.** Show the brand, amount, and payment source.
 
 ```bash
-snaplii purchase --item-id "CB...-CT..." --price 50
+snaplii purchase --item-id "CB...-CT..." --price 50 --payment-method SNAPLII_CASH
 ```
 
 - `--item-id` is `{cardBrandId}-{cardTemplateId}` from the browse step
 - `--price` is the dollar amount
-- Optional: `--payment-method`, `--payment-token`, `--prov`
+- `--payment-method` defaults to `SNAPLII_CASH` (pays from Snaplii Cash balance). `SNAPLII_CREDIT` is also accepted as a payment placeholder.
+- `--payment-token` is optional — the gateway auto-derives it from the user's account.
 
 ### Step 5: API Key Management
 
@@ -86,15 +88,17 @@ snaplii apikey delete --key-id "ak_..."
 | Command | Purpose |
 |---|---|
 | `snaplii init --agent-id ID --api-key KEY` | Login with API key |
-| `snaplii browse tags [--channel CH] [--prov PROV]` | List card categories + brand summaries |
+| `snaplii browse tags [--channel CH] [--prov PROV]` | List card categories + brand summaries (prov = province code: ON, QC, BC) |
 | `snaplii browse brand --id BRAND_ID` | Get brand details (denominations, discounts) |
 | `snaplii giftcard list [--status STATUS]` | List owned gift cards |
 | `snaplii giftcard detail --card-no CARD_NO` | Get card details (code, PIN) |
-| `snaplii purchase --item-id ID --price PRICE` | Buy a gift card |
+| `snaplii purchase --item-id ID --price PRICE` | Buy a gift card (default: SNAPLII_CASH) |
+| `snaplii smart cashback --brand-id ID --amount A` | Calculate cashback savings |
+| `snaplii smart dashboard` | View card inventory summary |
 | `snaplii apikey list` | List API keys |
 | `snaplii apikey create --name N --scope S [--limit L]` | Create API key |
 | `snaplii apikey delete --key-id ID` | Delete API key |
-| `snaplii config show` | Show config |
+| `snaplii config show` | Show config (api_key is masked in output) |
 | `snaplii config set --base-url URL` | Set gateway URL |
 
 ## Important Rules

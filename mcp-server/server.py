@@ -169,6 +169,8 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             store = ConfigStore()
             data = store.load()
             safe = {k: v for k, v in data.items() if k not in ("access_token",)}
+            if "api_key" in safe and safe["api_key"]:
+                safe["api_key"] = safe["api_key"][:8] + "..."
             safe["has_valid_token"] = bool(store.get_cached_token())
             return _text(safe)
 
