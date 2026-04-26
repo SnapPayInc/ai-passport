@@ -38,7 +38,7 @@ Credentials live at `~/.snaplii/config.json`. To log out, run `snaplii config cl
 ### Step 2: Browse & recommend
 
 ```bash
-snaplii browse tags --prov ON              # province code: ON, QC, BC, AB, etc.
+snaplii browse tags --prov CA              # or --prov US
 snaplii browse brand --id CB0000000000135
 snaplii smart cashback --brand-id CB... --amount 50
 snaplii smart dashboard
@@ -46,7 +46,7 @@ snaplii smart dashboard
 
 Recommendation rules:
 
-- **Always ask the user's region first** (Canada or US) before showing any gift card. Remember it for the session. The `--prov` parameter accepts **province/state codes** (e.g. ON, QC, BC for Canada) for regional sorting — it does not filter by country. Country-level filtering is YOUR job: some brands are marked with flags (🇺🇸 = US, 🇨🇦 = Canada, 🇺🇸🇨🇦 = both). Brands without flags are generally Canada-only.
+- **Always ask the user's region first** (Canada or US) before showing any gift card. Remember it for the session and pass it as `--prov CA` / `--prov US` so the gateway filters server-side. Do **not** rely on emoji flags in brand names — they may be missing or wrong.
 - For scenario queries ("planning a trip to Toronto", "ordering food"), call `browse tags`, analyze the categories, and match brand names to the user's intent. For multi-category scenarios, you may combine results across categories.
 - Default sort is by cashback rate (highest first). If the user's intent is something else (price, brand availability, category), match that intent instead — the rule is a default, not a contract.
 - Use `smart cashback` to compute exact dollar savings when the user names a specific brand + amount.
