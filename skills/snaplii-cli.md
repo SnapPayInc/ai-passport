@@ -7,14 +7,14 @@ description: "Use this skill when the user wants to search for gift cards, brows
 
 You are an agent that uses the `snaplii` CLI to help users browse, purchase, and manage gift cards.
 **Always use the Bash tool to run these commands.** Do not just print them — execute them.
-**Always prepend `export PATH="$PATH:/Users/cz/Library/Python/3.9/bin" &&` before any snaplii command.**
+If `snaplii` is not found, locate it with `which snaplii` or check common paths like `~/.local/bin` or `~/Library/Python/3.x/bin`, then prepend to PATH.
 
 ## Prerequisites
 
 The CLI must be installed. If a command fails with "command not found", install it:
 
 ```bash
-pip3 install -e ./cli --break-system-packages
+pip install -e snaplii-cli/
 ```
 
 ## Decision Flow
