@@ -120,16 +120,43 @@ ai-passport/
 | `snaplii smart dashboard` | View card inventory summary |
 | `snaplii apikey list \| create \| delete` | Manage API keys |
 
-### MCP Server (Claude Desktop)
+### Claude Desktop Setup (MCP Server)
 
-The MCP server depends on the `mcp` Python package. Install it (and any other server deps) into a Python environment, then point Claude Desktop at that interpreter.
+Claude Desktop cannot run CLI commands directly — it requires an MCP server to bridge. The Snaplii MCP server exposes 12 tools that let Claude browse gift cards, make purchases, and manage API keys through natural conversation.
+
+#### Step 1: Install dependencies
+
+The MCP server requires Python **3.10+** and the `mcp` package. Install both the CLI and server deps:
 
 ```bash
-# Pick any environment — pipx, venv, or system pip — that uses Python 3.10+
-pip install -e ./mcp-server
+# Create a dedicated environment (recommended)
+python3 -m venv ~/.venvs/snaplii
+source ~/.venvs/snaplii/bin/activate          # Windows: ~\.venvs\snaplii\Scripts\activate
+
+# Install CLI + MCP dependencies
+pip install -e ./snaplii-cli
+pip install "mcp[cli]"
 ```
 
-Then add to `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS (the equivalent path on Linux / Windows works the same way):
+#### Step 2: Authenticate (one-time)
+
+The MCP server reads credentials from `~/.snaplii/config.json`. Run this once to store them:
+
+```bash
+snaplii init --agent-id "my-agent" --api-key "snp_sk_live_..."
+```
+
+#### Step 3: Configure Claude Desktop
+
+Edit the Claude Desktop config file:
+
+| OS | Config file location |
+|---|---|
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Linux | `~/.config/Claude/claude_desktop_config.json` |
+
+Add the `mcpServers` section (create the file if it doesn't exist):
 
 ```json
 {
@@ -142,10 +169,61 @@ Then add to `~/Library/Application Support/Claude/claude_desktop_config.json` on
 }
 ```
 
-- `command` must be the Python interpreter where you just installed `mcp` (e.g. `~/.venvs/snaplii/bin/python`, or whatever `head -1 $(which snaplii)` shows on Unix).
-- `args[0]` must be the absolute path to `server.py` inside your clone — the server reads sibling files via `Path(__file__).parent.parent`, so do not move `server.py` out of the repo.
+**Important:**
+- `command` must be the **absolute path** to the Python interpreter where you installed `mcp`. Find it with:
+  ```bash
+  # If using a venv:
+  echo ~/.venvs/snaplii/bin/python
 
-Restart Claude Desktop after editing the config.
+  # Or find wherever snaplii is installed:
+  head -1 $(which snaplii)
+  ```
+- `args[0]` must be the **absolute path** to `server.py` inside your clone. Do not move `server.py` out of the repo — it resolves the CLI package via relative paths.
+
+**Example (macOS):**
+```json
+{
+  "mcpServers": {
+    "snaplii": {
+      "command": "/Users/yourname/.venvs/snaplii/bin/python",
+      "args": ["/Users/yourname/projects/ai-passport/mcp-server/server.py"]
+    }
+  }
+}
+```
+
+#### Step 4: Restart Claude Desktop
+
+Fully quit Claude Desktop (**Cmd+Q**, not just close the window), then reopen it. You should see 12 Snaplii tools available.
+
+#### Step 5: Verify
+
+In a new Claude Desktop conversation, try:
+
+> "What gift cards are available?"
+
+Claude should call `snaplii_browse_tags` and show you a list of gift card categories. If it doesn't respond with tools, check:
+
+1. **Logs**: `~/Library/Logs/Claude/mcp*.log` (macOS) for startup errors
+2. **Common fix**: `ModuleNotFoundError: No module named 'mcp'` → the `command` Python doesn't have `mcp` installed. Install it in that interpreter.
+3. **Common fix**: `ModuleNotFoundError: No module named 'snaplii'` → install the CLI in that interpreter too: `pip install -e ./snaplii-cli`
+
+#### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| `snaplii_init` | Authenticate with API key |
+| `snaplii_config_show` | Check auth status (secrets masked) |
+| `snaplii_browse_tags` | Browse gift card categories & brands |
+| `snaplii_browse_brand` | Get brand details & denominations |
+| `snaplii_giftcard_list` | List owned cards (sensitive info masked) |
+| `snaplii_giftcard_detail` | Get card redemption code (explicit consent required) |
+| `snaplii_purchase` | Buy a gift card (confirmation required) |
+| `snaplii_cashback_calc` | Calculate cashback savings |
+| `snaplii_dashboard` | Card inventory summary |
+| `snaplii_apikey_list` | List API keys (masked) |
+| `snaplii_apikey_create` | Create API key (full key only via CLI `--reveal`) |
+| `snaplii_apikey_delete` | Delete an API key |
 
 ### Claude Code Skill
 
