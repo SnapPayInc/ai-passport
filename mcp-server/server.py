@@ -22,7 +22,7 @@ from snaplii.exceptions import ConfigError, GatewayApiError, GatewayConnectionEr
 
 app = Server("snaplii")
 
-_DEFAULT_BASE_URL = "https://gateway.snaplii.com/gateway/mrpay"
+_DEFAULT_BASE_URL = "https://aipayment.snaplii.com"
 
 
 def _get_client() -> GatewayClient:
