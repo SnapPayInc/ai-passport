@@ -11,9 +11,22 @@ class GatewayApiError(SnapliiCliError):
 
     def to_dict(self) -> dict:
         friendly = self.body.get("friendly_message")
+        error_code = self.body.get("rspMsgCd", "")
+        if not friendly:
+            if self.status_code == 502:
+                friendly = "Gateway temporarily unavailable. Please wait a moment and try again."
+            elif self.status_code == 401 or self.status_code == 403:
+                friendly = "Authentication failed. Run 'snaplii init' to re-authenticate."
+            elif self.status_code == 404:
+                friendly = "Endpoint not found. Check your gateway URL with 'snaplii config show'."
+            elif error_code:
+                friendly = f"Request failed with code {error_code}. Check the gateway logs for details."
+            else:
+                raw = self.body.get("rspMsgInf") or self.body.get("message") or self.body.get("raw", "")
+                friendly = f"Request failed (HTTP {self.status_code}). {raw}".strip()
         return {
-            "error": friendly or "API error",
-            "error_code": self.body.get("rspMsgCd", ""),
+            "error": friendly,
+            "error_code": error_code,
             "endpoint": self.endpoint,
         }
 

@@ -121,7 +121,7 @@ async def list_tools() -> list[types.Tool]:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "description": "Key name"},
-                    "scope": {"type": "string", "description": "PAY_READ or PAY_WRITE", "default": "PAY_READ"},
+                    "scope": {"type": "string", "description": "PAY_READ (view cards only) or PAY_WRITE (view + purchase)", "default": "PAY_READ"},
                     "limit": {"type": "number", "description": "Consumption limit in dollars"},
                 },
                 "required": ["name"],

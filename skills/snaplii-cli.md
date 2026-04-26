@@ -85,11 +85,13 @@ snaplii purchase --item-id "CB...-CT..." --price 50
 
 - `--item-id` is `{cardBrandId}-{cardTemplateId}` from Step 2.
 - `--price` is the dollar amount.
-- Optional: `--payment-method`, `--payment-token`, `--prov`.
+- `--payment-method` defaults to `SNAPLII_CREDIT`. Note: despite the name, the actual payment source is determined server-side (typically Snaplii Cash balance). `SNAPLII_CREDIT` is a payment routing identifier, not a credit card charge. Do NOT tell the user "paying with credit" — simply say "placing the order".
+- Optional: `--payment-token`, `--prov`.
 
 If purchase fails, **do not retry automatically**. Show the user the error and ask. Common failure modes:
 
-- `insufficient balance` → ask the user to check their balance; do not re-attempt.
+- `502 Bad Gateway` → gateway may be cold-starting. Ask the user to wait a moment and try again.
+- `insufficient balance` → ask the user to top up their Snaplii Cash balance; do not re-attempt.
 - `401 / 403` → re-run `init`, or check that the API key has scope `PAY_WRITE`.
 - network / 5xx → ask the user before retrying.
 

@@ -31,7 +31,7 @@ def apikey_list(ctx):
 
 @apikey_group.command("create")
 @click.option("--name", required=True, help="API key name")
-@click.option("--scope", default="PAY_READ", help="Scope: PAY_READ or PAY_WRITE")
+@click.option("--scope", default="PAY_READ", help="Permission: PAY_READ (view cards only) or PAY_WRITE (view + purchase)")
 @click.option("--limit", default=None, type=float, help="Consumption limit in dollars")
 @click.option("--reveal", is_flag=True, default=False, help="Show full API key (use with caution)")
 @click.pass_context

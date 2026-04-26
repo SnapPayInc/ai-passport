@@ -6,9 +6,23 @@ AI Passport lets AI agents browse, purchase, and manage gift cards through Snapl
 
 ## Requirements
 
-- Python **3.9+** for the CLI, **3.10+** if you also want the MCP server
+- Python **3.10+** (CLI works on 3.9+, but MCP server needs 3.10+)
 - `git`
 - An agent ID and API key issued by Snaplii
+
+<details>
+<summary>Mac users: check your Python version</summary>
+
+```bash
+python3 --version
+```
+
+If below 3.10, install via Homebrew:
+```bash
+brew install python@3.12
+```
+Then use `python3.12` and `pip3.12` instead of `python3` / `pip3` in the steps below.
+</details>
 
 ## Quick Start
 
