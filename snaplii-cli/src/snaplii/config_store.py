@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 
-_TOKEN_SAFETY_MARGIN = 30  # seconds before expiry to trigger refresh
+_TOKEN_SAFETY_MARGIN = 90  # seconds before expiry to trigger refresh
 
 
 class ConfigStore:

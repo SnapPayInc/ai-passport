@@ -15,4 +15,6 @@ def init_cmd(ctx, agent_id, api_key):
 
     store.set_many({"agent_id": agent_id, "api_key": api_key})
     resp = client.login(agent_id, api_key)
-    print_json(resp)
+    safe = {k: v for k, v in resp.items() if k not in ("access_token", "token_type", "expires_in")}
+    safe["status"] = "authenticated"
+    print_json(safe)

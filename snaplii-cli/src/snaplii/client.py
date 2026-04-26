@@ -9,6 +9,8 @@ from snaplii.exceptions import ConfigError, GatewayApiError, GatewayConnectionEr
 class GatewayClient:
     def __init__(self, base_url: str, config_store: ConfigStore):
         self._base_url = base_url.rstrip("/")
+        if not self._base_url.startswith("https://") and "localhost" not in self._base_url and "127.0.0.1" not in self._base_url:
+            raise ConfigError("Gateway URL must use HTTPS for non-local connections.")
         self._config = config_store
         self._http = httpx.Client(timeout=30.0)
 

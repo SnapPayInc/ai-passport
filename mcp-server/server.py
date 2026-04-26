@@ -168,9 +168,9 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         if name == "snaplii_config_show":
             store = ConfigStore()
             data = store.load()
-            safe = {k: v for k, v in data.items() if k not in ("access_token",)}
+            safe = {k: v for k, v in data.items() if k not in ("access_token", "token_expires_at")}
             if "api_key" in safe and safe["api_key"]:
-                safe["api_key"] = safe["api_key"][:8] + "..."
+                safe["api_key"] = safe["api_key"][:12] + "..."
             safe["has_valid_token"] = bool(store.get_cached_token())
             return _text(safe)
 
@@ -202,7 +202,12 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         elif name == "snaplii_giftcard_detail":
             client = _get_client()
             result = client.get_card_detail(arguments["card_no"])
-            return _text(result)
+            # Wrap with security notice so agent handles display carefully
+            return _text({
+                "_sensitive": True,
+                "_notice": "Contains redemption code and PIN. Show to user only upon explicit confirmation. Do NOT include in summaries or logs.",
+                "data": result,
+            })
 
         elif name == "snaplii_purchase":
             client = _get_client()
@@ -216,6 +221,10 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         elif name == "snaplii_apikey_list":
             client = _get_client()
             result = client.list_api_keys()
+            if isinstance(result, dict):
+                for key in result.get("keys", []):
+                    if "apiKey" in key:
+                        key["apiKey"] = key["apiKey"][:12] + "..." if len(key.get("apiKey", "")) > 12 else "***"
             return _text(result)
 
         elif name == "snaplii_apikey_create":
@@ -225,6 +234,10 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
                 scope=arguments.get("scope", "PAY_READ"),
                 consumption_limit=arguments.get("limit"),
             )
+            # Never return full API key in MCP context — it would leak into conversation
+            if isinstance(result, dict) and "apiKey" in result:
+                result["apiKey"] = result["apiKey"][:12] + "..." if len(result.get("apiKey", "")) > 12 else "***"
+                result["_notice"] = "Key created but masked for security. User must run 'snaplii apikey create --reveal' via CLI to see the full key."
             return _text(result)
 
         elif name == "snaplii_apikey_delete":
