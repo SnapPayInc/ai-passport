@@ -13,7 +13,7 @@ def browse_group(ctx):
 
 @browse_group.command("tags")
 @click.option("--channel", default="HOME_PAGE", help="Channel: HOME_PAGE or SEND_GIFT")
-@click.option("--prov", default="ON", help="Province code (ON, QC, BC, etc.)")
+@click.option("--prov", default="CA", help="Country code: CA (Canada) or US")
 @click.pass_context
 def browse_tags(ctx, channel, prov):
     """List all card categories (tags) with brand summaries."""

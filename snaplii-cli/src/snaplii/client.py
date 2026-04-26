@@ -41,7 +41,7 @@ class GatewayClient:
 
     # ── Card browsing ─────────────────────────────────────────────
 
-    def get_all_card_tags(self, channel: str = "HOME_PAGE", location_prov: str = "ON") -> dict:
+    def get_all_card_tags(self, channel: str = "HOME_PAGE", location_prov: str = "CA") -> dict:
         resp = self._get("/v2/card-brands", params={
             "channel": channel,
             "locationProv": location_prov,
@@ -68,7 +68,7 @@ class GatewayClient:
         price: str,
         payment_method: str = "SNAPLII_CREDIT",
         payment_token: str | None = None,
-        location_prov: str = "ON",
+        location_prov: str = "CA",
     ) -> dict:
         payment_ctx = {
             "specifiedPrimaryPaymentMethod": payment_method,

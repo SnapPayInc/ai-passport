@@ -58,7 +58,7 @@ async def list_tools() -> list[types.Tool]:
                 "type": "object",
                 "properties": {
                     "channel": {"type": "string", "description": "HOME_PAGE or SEND_GIFT", "default": "HOME_PAGE"},
-                    "prov": {"type": "string", "description": "Province code (ON, QC, BC)", "default": "ON"},
+                    "prov": {"type": "string", "description": "Country code: CA (Canada) or US", "default": "CA"},
                 },
                 "required": [],
             },
@@ -104,7 +104,7 @@ async def list_tools() -> list[types.Tool]:
                 "properties": {
                     "item_id": {"type": "string", "description": "Item ID: {brandId}-{templateId}"},
                     "price": {"type": "string", "description": "Price in dollars"},
-                    "payment_method": {"type": "string", "description": "SNAPLII_CASH, SNAPLII_CREDIT, or SNAPLII_DEBIT", "default": "SNAPLII_CASH"},
+                    "payment_method": {"type": "string", "description": "SNAPLII_CREDIT (default), SNAPLII_CASH, or SNAPLII_DEBIT", "default": "SNAPLII_CREDIT"},
                 },
                 "required": ["item_id", "price"],
             },
@@ -185,7 +185,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             client = _get_client()
             result = client.get_all_card_tags(
                 channel=arguments.get("channel", "HOME_PAGE"),
-                location_prov=arguments.get("prov", "ON"),
+                location_prov=arguments.get("prov", "CA"),
             )
             return _text(result)
 
@@ -214,7 +214,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             result = client.create_order_and_pay(
                 item_id=arguments["item_id"],
                 price=arguments["price"],
-                payment_method=arguments.get("payment_method", "SNAPLII_CASH"),
+                payment_method=arguments.get("payment_method", "SNAPLII_CREDIT"),
             )
             return _text(result)
 
