@@ -129,13 +129,12 @@ Claude Desktop cannot run CLI commands directly — it requires an MCP server to
 The MCP server requires Python **3.10+** and the `mcp` package. Install both the CLI and server deps:
 
 ```bash
-# Create a dedicated environment (recommended)
-python3 -m venv ~/.venvs/snaplii
-source ~/.venvs/snaplii/bin/activate          # Windows: ~\.venvs\snaplii\Scripts\activate
+pip3 install -e ./snaplii-cli
+pip3 install "mcp[cli]"
 
-# Install CLI + MCP dependencies
-pip install -e ./snaplii-cli
-pip install "mcp[cli]"
+# If you get "error: externally-managed-environment", add:
+pip3 install -e ./snaplii-cli --break-system-packages
+pip3 install "mcp[cli]" --break-system-packages
 ```
 
 #### Step 2: Authenticate (one-time)
