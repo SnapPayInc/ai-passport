@@ -1,43 +1,33 @@
-# AI Passport by Snaplii
-
-**Safe, limited-authorization payments for AI agents.**
-
+AI Passport by Snaplii
+Safe, limited-authorization payments for AI agents.
 AI Passport lets AI agents browse, purchase, and manage gift cards through Snaplii — with spending limits and scoped permissions. Agents pay with Snaplii Cash (prepaid balance), so exposure is capped and controllable.
-
-## Requirements
-
-- Python **3.10+** (CLI works on 3.9+, but MCP server needs 3.10+)
-- `git`
-- An agent ID and API key issued by Snaplii
-
+Requirements
+•	Python 3.10+ (CLI works on 3.9+, but MCP server needs 3.10+)
+•	git
+•	Snaplii Mobile App (required to generate your API key)
 <details>
 <summary>Mac users: check your Python version</summary>
-
-```bash
 python3 --version
-```
 
 If below 3.10, install via Homebrew:
-```bash
 brew install python@3.12
-```
-Then use `python3.12` and `pip3.12` instead of `python3` / `pip3` in the steps below.
+
+Then use python3.12 and pip3.12 instead of python3 / pip3 in the steps below.
 </details>
-
-## Quick Start
-
-### 1. Get the code
-
-```bash
+Quick Start
+1. Get Your API Key via Snaplii App
+Before using the CLI or configuring your AI agent, you must generate a secure API key from the Snaplii mobile app:
+	1.	Download the Snaplii app (iOS / Android).
+	2.	Register an account and bind a payment method to load your Snaplii Cash balance.
+	3.	In the app, navigate to More → Payment Methods → AI Payment Management.
+	4.	Tap + New API Key. Here, you will set a name, define the permission scope (e.g., Read-only vs. Purchase), and set a hard spending limit.
+	5.	Copy the API key (format: snp_sk_live_...). Keep this safe — it will only be shown once!
+2. Get the Code
 git clone https://github.com/SnapPayInc/ai-passport.git
 cd ai-passport
-```
 
-### 2. Install the CLI
-
-`pipx` is the smoothest path — it installs the CLI into its own isolated environment and puts the `snaplii` executable on your PATH:
-
-```bash
+3. Install the CLI
+pipx is the smoothest path — it installs the CLI into its own isolated environment and puts the snaplii executable on your PATH:
 # macOS
 brew install pipx && pipx ensurepath
 
@@ -49,138 +39,61 @@ py -m pip install --user pipx ; py -m pipx ensurepath
 
 # All platforms
 pipx install -e ./snaplii-cli
-```
 
-Open a new shell so the updated PATH takes effect.
-
-<details>
-<summary>No pipx? Use a venv.</summary>
-
-```bash
-python3 -m venv ~/.venvs/snaplii
-source ~/.venvs/snaplii/bin/activate          # Windows: ~\.venvs\snaplii\Scripts\activate
-pip install -e ./snaplii-cli
-```
-
-The CLI is only available while the venv is activated (or when you call `~/.venvs/snaplii/bin/snaplii` directly).
-</details>
-
-<details>
-<summary>Last resort: install with raw pip.</summary>
-
-```bash
-pip3 install --user -e ./snaplii-cli
-# If pip refuses with "error: externally-managed-environment", append --break-system-packages.
-```
-
-The `snaplii` script may land in a directory that isn't on your PATH:
-
-| OS | Likely location |
-|---|---|
-| macOS (system Python 3.9) | `~/Library/Python/3.9/bin` |
-| Linux | `~/.local/bin` |
-| Windows | `%APPDATA%\Python\Python3xx\Scripts` |
-
-Add it to PATH if `snaplii` isn't found. See [Troubleshooting](#troubleshooting).
-</details>
-
-### 3. Verify
-
-```bash
+Open a new terminal window so the updated PATH takes effect, then verify the installation:
 snaplii --help
-```
 
-If you see "command not found", jump to [Troubleshooting](#troubleshooting).
+(If you see "command not found", jump to Troubleshooting.)
+4. Authenticate
+Link your local CLI to your Snaplii account using the API key you generated in Step 1:
+snaplii init --api-key "snp_sk_live_..."
 
-### 4. Get your API Key
+5. Use the CLI
+snaplii browse tags                                  # Browse gift card categories
+snaplii browse brand --id CB...                      # See denominations & cashback
+snaplii giftcard list                                # View owned cards
+snaplii purchase --item-id CB...-CT... --price 50    # Buy a card
 
-Before authenticating, you need a Snaplii API key:
-
-1. Download the **Snaplii** app ([iOS](https://apps.apple.com/app/snaplii/id1550310576) / [Android](https://play.google.com/store/apps/details?id=ca.snappay.snappayapp))
-2. Register an account and bind a payment card
-3. Go to **More → Payment Methods → AI Payment Management**
-4. Tap **+ New API Key**, set a name, permission scope, and spending limit
-5. Copy the API key (format: `snp_sk_live_...`) — it is shown only once
-
-### 5. Authenticate
-
-```bash
-snaplii init --agent-id "<your-agent-id>" --api-key "snp_sk_live_..."
-```
-
-### 6. Use
-
-```bash
-snaplii browse tags                                  # browse gift card categories
-snaplii browse brand --id CB...                      # see denominations & cashback
-snaplii giftcard list                                # view owned cards
-snaplii purchase --item-id CB...-CT... --price 50    # buy a card
-```
-
-`--item-id` is `{cardBrandId}-{cardTemplateId}`; both IDs come from `browse brand`.
-
-## Components
-
-```
+Note: --item-id is formatted as {cardBrandId}-{cardTemplateId}. Both IDs can be found using the browse brand command.
+Components
 ai-passport/
 ├── snaplii-cli/     # Python CLI — pip-installable
 ├── mcp-server/      # MCP server for Claude Desktop
 └── skills/          # Claude Code skill definition
-```
 
-### CLI Commands
-
-| Command | Purpose |
-|---------|---------|
-| `snaplii init` | Authenticate with agent ID + API key |
-| `snaplii config show` | Show current config & auth status |
-| `snaplii browse tags` | Browse card categories & brands |
-| `snaplii browse brand --id ID` | Brand details (denominations, cashback) |
-| `snaplii giftcard list` | List owned gift cards |
-| `snaplii giftcard detail --card-no NO` | Card redemption code & PIN |
-| `snaplii purchase --item-id ID --price P` | Purchase a gift card |
-| `snaplii smart cashback --brand-id ID --amount A` | Calculate cashback savings |
-| `snaplii smart dashboard` | View card inventory summary |
-| `snaplii apikey list \| create \| delete` | Manage API keys |
-
-### Claude Desktop Setup (MCP Server)
-
-Claude Desktop cannot run CLI commands directly — it requires an MCP server to bridge. The Snaplii MCP server exposes 12 tools that let Claude browse gift cards, make purchases, and manage API keys through natural conversation.
-
-#### Step 1: Install dependencies
-
-The MCP server requires Python **3.10+** and the `mcp` package. Install both the CLI and server deps:
-
-```bash
+CLI Commands
+Command	Purpose
+snaplii init	Authenticate with your Snaplii API key
+snaplii config show	Show current config & auth status
+snaplii browse tags	Browse card categories & brands
+snaplii browse brand --id ID	Brand details (denominations, cashback)
+snaplii giftcard list	List owned gift cards
+snaplii giftcard detail --card-no NO	Card redemption code & PIN
+snaplii purchase --item-id ID --price P	Purchase a gift card
+snaplii smart cashback --brand-id ID --amount A	Calculate cashback savings
+snaplii smart dashboard	View card inventory summary
+Claude Desktop Setup (MCP Server)
+Claude Desktop cannot run CLI commands directly — it requires an MCP server to bridge the gap. The Snaplii MCP server exposes 12 tools that let Claude browse gift cards and make purchases through natural conversation.
+Step 1: Install dependencies
+The MCP server requires Python 3.10+ and the mcp package. Install both the CLI and server dependencies:
 pip3 install -e ./snaplii-cli
 pip3 install "mcp[cli]"
 
-# If you get "error: externally-managed-environment", add:
+# If you get an "externally-managed-environment" error, add:
 pip3 install -e ./snaplii-cli --break-system-packages
 pip3 install "mcp[cli]" --break-system-packages
-```
 
-#### Step 2: Authenticate (one-time)
+Step 2: Authenticate (one-time)
+The MCP server reads credentials from ~/.snaplii/config.json. If you haven't authenticated yet, run this once:
+snaplii init --api-key "snp_sk_live_..."
 
-The MCP server reads credentials from `~/.snaplii/config.json`. Run this once to store them:
-
-```bash
-snaplii init --agent-id "my-agent" --api-key "snp_sk_live_..."
-```
-
-#### Step 3: Configure Claude Desktop
-
+Step 3: Configure Claude Desktop
 Edit the Claude Desktop config file:
-
-| OS | Config file location |
-|---|---|
-| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-| Linux | `~/.config/Claude/claude_desktop_config.json` |
-
-Add the `mcpServers` section (create the file if it doesn't exist):
-
-```json
+OS	Config file location
+macOS	~/Library/Application Support/Claude/claude_desktop_config.json
+Windows	%APPDATA%\Claude\claude_desktop_config.json
+Linux	~/.config/Claude/claude_desktop_config.json
+Add the mcpServers section (create the file if it doesn't exist). Ensure you use absolute paths:
 {
   "mcpServers": {
     "snaplii": {
@@ -189,113 +102,36 @@ Add the `mcpServers` section (create the file if it doesn't exist):
     }
   }
 }
-```
 
-**Important:**
-- `command` must be the **absolute path** to the Python interpreter where you installed `mcp`. Find it with:
-  ```bash
-  # If using a venv:
-  echo ~/.venvs/snaplii/bin/python
-
-  # Or find wherever snaplii is installed:
-  head -1 $(which snaplii)
-  ```
-- `args[0]` must be the **absolute path** to `server.py` inside your clone. Do not move `server.py` out of the repo — it resolves the CLI package via relative paths.
-
-**Example (macOS):**
-```json
-{
-  "mcpServers": {
-    "snaplii": {
-      "command": "/Users/yourname/.venvs/snaplii/bin/python",
-      "args": ["/Users/yourname/projects/ai-passport/mcp-server/server.py"]
-    }
-  }
-}
-```
-
-#### Step 4: Restart Claude Desktop
-
-Fully quit Claude Desktop (**Cmd+Q**, not just close the window), then reopen it. You should see 12 Snaplii tools available.
-
-#### Step 5: Verify
-
-In a new Claude Desktop conversation, try:
-
-> "What gift cards are available?"
-
-Claude should call `snaplii_browse_tags` and show you a list of gift card categories. If it doesn't respond with tools, check:
-
-1. **Logs**: `~/Library/Logs/Claude/mcp*.log` (macOS) for startup errors
-2. **Common fix**: `ModuleNotFoundError: No module named 'mcp'` → the `command` Python doesn't have `mcp` installed. Install it in that interpreter.
-3. **Common fix**: `ModuleNotFoundError: No module named 'snaplii'` → install the CLI in that interpreter too: `pip install -e ./snaplii-cli`
-
-#### Available Tools
-
-| Tool | Description |
-|------|-------------|
-| `snaplii_init` | Authenticate with API key |
-| `snaplii_config_show` | Check auth status (secrets masked) |
-| `snaplii_browse_tags` | Browse gift card categories & brands |
-| `snaplii_browse_brand` | Get brand details & denominations |
-| `snaplii_giftcard_list` | List owned cards (sensitive info masked) |
-| `snaplii_giftcard_detail` | Get card redemption code (explicit consent required) |
-| `snaplii_purchase` | Buy a gift card (confirmation required) |
-| `snaplii_cashback_calc` | Calculate cashback savings |
-| `snaplii_dashboard` | Card inventory summary |
-| `snaplii_apikey_list` | List API keys (masked) |
-| `snaplii_apikey_create` | Create API key (full key only via CLI `--reveal`) |
-| `snaplii_apikey_delete` | Delete an API key |
-
-### Claude Code Skill
-
-Claude Code expects each skill in its own directory containing a `SKILL.md`:
-
-```bash
+Important:
+•	command must point to the Python interpreter where mcp is installed. Find it using which python3 or echo ~/.venvs/snaplii/bin/python.
+•	args must be the exact path to server.py inside your cloned repo.
+Step 4: Restart Claude Desktop
+Fully quit Claude Desktop (e.g., Cmd+Q on Mac), then reopen it. You should now see the Snaplii tools available.
+Step 5: Verify
+In a new Claude Desktop conversation, try asking:
+"What gift cards are available on Snaplii?"
+Claude should automatically call snaplii_browse_tags and display the categories.
+Claude Code Skill
+Claude Code expects each skill in its own directory containing a SKILL.md:
 mkdir -p ~/.claude/skills/snaplii-cli
 cp skills/snaplii-cli.md ~/.claude/skills/snaplii-cli/SKILL.md
-```
 
-Then open `~/.claude/skills/snaplii-cli/SKILL.md`. If the file contains a line like:
-
-```
+Then open ~/.claude/skills/snaplii-cli/SKILL.md. If the file contains a line like:
 Always prepend `export PATH="$PATH:/Users/.../bin" &&` before any snaplii command.
-```
 
-— replace the path with the directory that holds **your** `snaplii` binary. Find it with:
-
-```bash
-which snaplii          # Unix
-where.exe snaplii      # Windows
-```
-
-If `snaplii` is already on the default PATH for new shells (typical with `pipx`), delete the `export PATH=...` prefix from the skill entirely.
-
-The skill becomes available in Claude Code on the next session.
-
-## Troubleshooting
-
-**`snaplii: command not found` after install.** The console script was placed somewhere not on your PATH. Run `python3 -m pip show -f snaplii-cli` and look for an entry ending in `bin/snaplii` (or `Scripts\snaplii.exe` on Windows). Either prepend that directory to PATH in your shell rc, or reinstall via `pipx`.
-
-**`error: externally-managed-environment` from pip.** Your system Python forbids global package installs (PEP 668). Use `pipx` (recommended) or a venv. Last resort: append `--break-system-packages` to the pip command — at the cost of polluting the system Python.
-
-**Claude Desktop logs `ModuleNotFoundError: No module named 'mcp'` (or `'snaplii'`).** The Python interpreter referenced by `command` in `claude_desktop_config.json` doesn't have the deps installed. Confirm with:
-
-```bash
+Replace the path with the directory that holds your snaplii binary. You can find it with which snaplii (Unix) or where.exe snaplii (Windows). If snaplii is already on your default PATH, you can delete that export PATH=... prefix entirely.
+Troubleshooting
+snaplii: command not found after install. The console script was placed somewhere not on your PATH. Run python3 -m pip show -f snaplii-cli and look for an entry ending in bin/snaplii (or Scripts\snaplii.exe on Windows). Either prepend that directory to PATH in your shell configuration, or reinstall using pipx.
+error: externally-managed-environment from pip. Your system Python forbids global package installs. Use pipx (recommended) or a virtual environment. As a last resort, append --break-system-packages to the pip command.
+Claude Desktop logs ModuleNotFoundError: No module named 'mcp' (or 'snaplii'). The Python interpreter referenced by command in claude_desktop_config.json doesn't have the required dependencies. Confirm by running:
 /absolute/path/to/python -c "import mcp, snaplii; print('ok')"
-```
 
-If it fails, install the missing package into that interpreter (`pip install -e ./mcp-server` and/or `pip install -e ./snaplii-cli`), or change `command` to a Python that already has them.
-
-**Claude Code does not pick up the skill.** Make sure the file is at `~/.claude/skills/snaplii-cli/SKILL.md` (folder + `SKILL.md`), not `~/.claude/skills/snaplii-cli.md` directly.
-
-## Security
-
-- **Limited authorization**: Agents can only spend from Snaplii Cash (prepaid balance)
-- **Scoped API keys**: `PAY_READ` (view only) or `PAY_WRITE` (view + purchase)
-- **Spending limits**: Per-key consumption caps
-- **Sensitive data protection**: Card codes and PINs are never exposed without explicit user consent
-
-## License
-
+If it fails, install the missing packages into that specific interpreter (pip install -e ./snaplii-cli and pip install "mcp[cli]").
+Security
+•	Limited authorization: Agents can only spend from Snaplii Cash (your prepaid balance).
+•	Scoped API keys: Keys can be restricted to PAY_READ (view only) or PAY_WRITE (view + purchase).
+•	Spending limits: Strict per-key consumption caps set via the mobile app.
+•	Data protection: Card redemption codes and PINs are strictly masked and never exposed without explicit user consent.
+License
 Proprietary — Snaplii Inc.
