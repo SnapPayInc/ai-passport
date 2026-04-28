@@ -104,8 +104,10 @@ Before authenticating, you need a Snaplii API key:
 
 ### 5. Authenticate
 
+`agent-id` is any name you choose to identify this agent session (e.g. `"my-laptop"`, `"claude-desktop"`). It is not provided by Snaplii — you make it up.
+
 ```bash
-snaplii init --agent-id "<your-agent-id>" --api-key "snp_sk_live_..."
+snaplii init --agent-id "my-agent" --api-key "snp_sk_live_..."
 ```
 
 ### 6. Use
