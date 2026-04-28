@@ -17,4 +17,5 @@ def init_cmd(ctx, agent_id, api_key):
     resp = client.login(agent_id, api_key)
     safe = {k: v for k, v in resp.items() if k not in ("access_token", "token_type", "expires_in")}
     safe["status"] = "authenticated"
+    safe["credential_storage"] = "system keychain" if store._use_keyring else "config file (keyring not available)"
     print_json(safe)
