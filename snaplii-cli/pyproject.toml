@@ -4,14 +4,29 @@ build-backend = "hatchling.build"
 
 [project]
 name = "snaplii-cli"
-version = "0.4.0"
-description = "CLI client for the Snaplii Agent Gateway API"
+version = "0.5.0"
+description = "Browse, purchase, and manage gift cards through Snaplii — safe payments for AI agents"
 requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [{name = "Snaplii Inc", email = "charles.zhang@snaplii.com"}]
+keywords = ["snaplii", "gift-cards", "ai-agent", "payments", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Office/Business :: Financial",
+]
 dependencies = [
     "click>=8.1,<9",
     "httpx>=0.27,<1",
     "keyring>=25.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/SnapPayInc/ai-passport"
+Repository = "https://github.com/SnapPayInc/ai-passport"
 
 [project.optional-dependencies]
 dev = [

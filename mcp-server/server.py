@@ -41,14 +41,14 @@ async def list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="snaplii_init",
-            description="Login with agent ID and API key (snp_sk_live_...). Run this before any other operation.",
+            description="Login with API key. The API key is used ONLY to obtain a short-lived token and is NEVER stored on disk. agent_id is optional (auto-derived from API key). IMPORTANT: Do not log or display the api_key value — treat it as a secret.",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "agent_id": {"type": "string", "description": "Any name the user chooses to identify this session (e.g. 'my-laptop', 'claude-desktop'). Not provided by Snaplii — user makes it up."},
+                    "agent_id": {"type": "string", "description": "Agent identifier (optional — auto-derived from API key if omitted)"},
                     "api_key": {"type": "string", "description": "API key (snp_sk_live_...)"},
                 },
-                "required": ["agent_id", "api_key"],
+                "required": ["api_key"],
             },
         ),
         types.Tool(
@@ -169,17 +169,21 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             store = ConfigStore()
             data = store.load()
             safe = {k: v for k, v in data.items() if k not in ("access_token", "token_expires_at")}
-            if "api_key" in safe and safe["api_key"]:
-                safe["api_key"] = safe["api_key"][:12] + "..."
             safe["has_valid_token"] = bool(store.get_cached_token())
             return _text(safe)
 
         elif name == "snaplii_init":
+            import hashlib
             store = ConfigStore()
             client = _get_client()
-            store.set_many({"agent_id": arguments["agent_id"], "api_key": arguments["api_key"]})
-            result = client.login(arguments["agent_id"], arguments["api_key"])
-            return _text({"status": "authenticated", "user": result.get("usrNo"), "scope": result.get("scope")})
+            api_key = arguments["api_key"]
+            agent_id = arguments.get("agent_id")
+            if not agent_id:
+                agent_id = f"agent-{hashlib.md5(api_key.encode()).hexdigest()[:8]}"
+            store.set("agent_id", agent_id)
+            # API key is NOT stored — only used to obtain a token
+            result = client.login(agent_id, api_key)
+            return _text({"status": "authenticated", "agent_id": agent_id})
 
         elif name == "snaplii_browse_tags":
             client = _get_client()
@@ -301,7 +305,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             return _text(f"Unknown tool: {name}")
 
     except ConfigError as e:
-        return _text({"error": "config_error", "message": str(e)})
+        return _text({"error": "auth_required", "message": str(e), "action": "Call snaplii_init with the user's API key to re-authenticate. Ask the user for their API key — do NOT reuse any previously seen key."})
     except GatewayConnectionError as e:
         return _text({"error": "connection_error", "message": str(e)})
     except GatewayApiError as e:

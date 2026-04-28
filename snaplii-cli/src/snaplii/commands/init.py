@@ -14,20 +14,26 @@ def _derive_agent_id(api_key: str) -> str:
 
 @click.command("init")
 @click.option("--agent-id", default=None, help="Agent ID (optional — auto-derived from API key if omitted)")
-@click.option("--api-key", required=True, help="API key (snp_sk_live_...)")
 @click.pass_context
-def init_cmd(ctx, agent_id, api_key):
-    """Login with API key and store credentials."""
+def init_cmd(ctx, agent_id):
+    """Login with API key and store credentials.
+
+    API key is read from hidden stdin input — never passed as a CLI argument
+    to avoid exposure in shell history and process listings.
+    The API key is used only to obtain a token and is NOT stored.
+    """
     client: GatewayClient = ctx.obj["client"]
     store = ctx.obj["config_store"]
+
+    api_key = click.prompt("API key", hide_input=True)
 
     if not agent_id:
         agent_id = _derive_agent_id(api_key)
 
-    store.set_many({"agent_id": agent_id, "api_key": api_key})
+    store.set("agent_id", agent_id)
+    # API key is NOT stored — only used to obtain a token
     resp = client.login(agent_id, api_key)
     safe = {k: v for k, v in resp.items() if k not in ("access_token", "token_type", "expires_in")}
     safe["status"] = "authenticated"
     safe["agent_id"] = agent_id
-    safe["credential_storage"] = "system keychain" if store._use_keyring else "config file (keyring not available)"
     print_json(safe)

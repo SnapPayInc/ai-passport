@@ -109,15 +109,8 @@ class GatewayClient:
         token = self._config.get_cached_token()
         if token:
             return token
-        agent_id = self._config.get("agent_id")
-        api_key = self._config.get("api_key")
-        if agent_id and api_key:
-            self.login(agent_id, api_key)
-            token = self._config.get_cached_token()
-            if token:
-                return token
         raise ConfigError(
-            "No valid token. Run 'snaplii init --agent-id ID --api-key KEY' to authenticate."
+            "Token expired or missing. Run 'snaplii init' to re-authenticate with your API key."
         )
 
     def _get(self, path: str, params: dict | None = None) -> dict:

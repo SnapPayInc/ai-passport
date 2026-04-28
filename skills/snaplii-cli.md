@@ -24,12 +24,12 @@ Never hardcode a user-specific path; always resolve it dynamically.
 
 ### Step 1: Check authentication state
 
-Run `snaplii config show`. The CLI masks `api_key` and `access_token` automatically. Decide based on output:
+Run `snaplii config show` to verify the CLI has a valid token.
+If not configured or token expired, ask the user for their API key, then run:
+`snaplii init`
+The CLI will prompt for the API key via hidden stdin input — **never pass the API key as a command-line argument** (it would be visible in shell history and process listings). Agent ID is auto-derived from the API key.
 
-- Output is exactly `{}` → never configured. Ask the user for their agent ID and API key, then run:
-  ```bash
-  snaplii init --agent-id "<agent-id>" --api-key "<api-key>"
-  ```
+- Output is exactly `{}` → never configured. Ask the user for their API key, then run `snaplii init` (it prompts for the key via hidden stdin).
 - Output contains `agent_id` → configured. Proceed.
 - A later call returns `401 / 403` → token expired or revoked. Re-run `init`.
 
@@ -134,12 +134,12 @@ This skill operates on real money and live credentials. These rules apply at all
 
 | Command | Purpose |
 |---|---|
-| `snaplii init --agent-id ID --api-key KEY` | Login with API key |
+| `snaplii init` | Login (prompts for API key via hidden input) |
 | `snaplii config show` | Show config (secrets auto-masked) |
 | `snaplii config set --base-url URL` | Switch gateway (e.g. staging vs prod) |
 | `snaplii config clear` | Log out / wipe local credentials |
-| `snaplii browse tags [--channel CH] [--prov PROV]` | List card categories + brand summaries |
-| `snaplii browse brand --id BRAND_ID` | Brand details (denominations, discounts) |
+| `snaplii browse tags [--channel CH] [--prov PROV]` | List card categories + brand summaries (prov = province code: ON, QC, BC) |
+| `snaplii browse brand --id BRAND_ID` | Get brand details (denominations, discounts) |
 | `snaplii giftcard list [--status STATUS]` | List owned gift cards |
 | `snaplii giftcard detail --card-no CARD_NO` | Card details (code, PIN) — sensitive |
 | `snaplii purchase --item-id ID --price PRICE` | Buy a gift card |
@@ -155,5 +155,5 @@ This skill operates on real money and live credentials. These rules apply at all
 - **NEVER show sensitive card information (card code, PIN, barcode URL) without explicit user consent.**
 - **NEVER print a freshly-created API key without explicit user consent and a warning that it's shown only once.**
 - **NEVER call `purchase`, `apikey create`, or `apikey delete` without explicit current-turn confirmation.**
-- Token refresh is automatic; on persistent auth failure, re-run `init`.
+- **Token is NOT auto-refreshed.** When any command returns a token-expired or 401 error, immediately run `snaplii init` to re-authenticate. Tell the user: "Your session has expired. Please re-enter your API key." Then pipe the user's API key input into init. Do NOT ask the user to run the command themselves — handle it seamlessly.
 - Parse JSON output and present in human-friendly format. Do not surface internal IDs (brandId / templateId / cardNo / keyId) into user-facing text unless the user specifically asks.

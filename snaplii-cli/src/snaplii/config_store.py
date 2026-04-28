@@ -11,7 +11,7 @@ _TOKEN_SAFETY_MARGIN = 90  # seconds before expiry to trigger refresh
 _KEYRING_SERVICE = "snaplii-cli"
 
 # Secrets stored in system keychain, never in config.json
-_SECRET_KEYS = {"api_key", "access_token"}
+_SECRET_KEYS = {"access_token"}
 
 
 def _keyring_available() -> bool:
@@ -69,12 +69,17 @@ class ConfigStore:
                     data[key] = val
         return data
 
+    # Keys that must NEVER be written to disk
+    _NEVER_STORE = {"api_key"}
+
     def save(self, data: dict) -> None:
         self._path.parent.mkdir(parents=True, exist_ok=True)
-        # Extract secrets → keychain, keep only safe fields in JSON
+        # Extract secrets → keychain, strip _NEVER_STORE keys, keep safe fields in JSON
         file_data = {}
         for k, v in data.items():
-            if k in _SECRET_KEYS and self._use_keyring:
+            if k in self._NEVER_STORE:
+                continue  # api_key is never stored anywhere
+            elif k in _SECRET_KEYS and self._use_keyring:
                 if v:
                     _keyring_set(k, str(v))
             else:
