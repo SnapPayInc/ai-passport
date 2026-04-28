@@ -154,7 +154,7 @@ class GatewayClient:
 
     # Human-readable error messages for common error codes
     _ERROR_MESSAGES = {
-        "MACP6005": "Payment failed. This usually means insufficient Snaplii Cash balance. Please top up your Snaplii Cash and try again.",
+        "MACP6005": "Payment service error. This may be a temporary issue — please wait a moment and retry. If it persists, check your Snaplii Cash balance in the app.",
         "MACP6006": "Service call failed. The downstream gift card service is temporarily unavailable. Please try again later.",
         "MCAP9999": "Session expired. Please run 'snaplii init' to re-authenticate.",
         "MCA20101": "Invalid API key format or request parameters.",

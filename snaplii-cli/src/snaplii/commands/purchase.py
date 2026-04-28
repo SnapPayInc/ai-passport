@@ -9,7 +9,7 @@ from snaplii.output import print_json
 @click.option("--price", required=True, help="Price in dollars (e.g. 50)")
 @click.option("--payment-method", default="SNAPLII_CREDIT", help="Payment method")
 @click.option("--payment-token", default=None, help="Payment token (auto-derived by gateway if omitted)")
-@click.option("--prov", default="ON", help="Province code")
+@click.option("--prov", required=True, help="Region code: CA province (ON, QC, BC) or US state (NY, CA, TX)")
 @click.pass_context
 def purchase_cmd(ctx, item_id, price, payment_method, payment_token, prov):
     """Create an order and pay for a gift card."""

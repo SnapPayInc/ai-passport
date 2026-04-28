@@ -32,6 +32,7 @@ def config_show(ctx):
         data["api_key"] = key[:8] + "..." if len(key) > 8 else "***"
     if "access_token" in data and data["access_token"]:
         data["access_token"] = data["access_token"][:20] + "..."
+    data["credential_storage"] = "system keychain" if store._use_keyring else "config file"
     print_json(data)
 
 

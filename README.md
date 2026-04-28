@@ -118,6 +118,8 @@ snaplii --help
 
 Link your local CLI to your Snaplii account using the API key generated in Step 1:
 
+`agent-id` is any name you choose to identify this agent session (e.g. `"my-laptop"`, `"claude-desktop"`). It is not provided by Snaplii — you make it up.
+
 ```bash
 snaplii init --api-key "snp_sk_live_..."
 ```

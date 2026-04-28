@@ -6,6 +6,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions follow 
 
 ---
 
+## [0.4.0] — 2026-04-28
+
+### Security
+- **API keys and access tokens now stored in system keychain** (macOS Keychain / Windows Credential Locker / Linux Secret Service) instead of plaintext `config.json`
+- `config.json` only contains non-sensitive data (agent_id, base_url, token_expires_at)
+- Graceful fallback to config file if keyring is not available (with warning)
+
+### Fixed
+- `MACP6005` error message: no longer assumes "insufficient balance" — now says "payment service error, may be temporary"
+- `--prov` on purchase: now required (was defaulting to ON, failing for US users)
+- `agent_id` confusion: README + MCP clarify it's user-defined, not system-provided
+
+### Added
+- `credential_storage` field in `config show` and `init` output — shows "system keychain" or "config file"
+- `keyring>=25.0` dependency
+- API key creation guide in README (download app → register → create key)
+
+---
+
 ## [0.3.0] — 2026-04-26
 
 ### Security
@@ -72,6 +91,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions follow 
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.4.0 | 2026-04-28 | System keychain for secrets, user feedback fixes |
 | 0.3.0 | 2026-04-26 | Security hardening, MCP fixes, user feedback |
 | 0.2.0 | 2026-04-24 | Full purchase chain, smart features, MCP 12 tools |
 | 0.1.0 | 2026-04-22 | Initial release |

@@ -45,7 +45,7 @@ async def list_tools() -> list[types.Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "agent_id": {"type": "string", "description": "Agent identifier for session isolation"},
+                    "agent_id": {"type": "string", "description": "Any name the user chooses to identify this session (e.g. 'my-laptop', 'claude-desktop'). Not provided by Snaplii — user makes it up."},
                     "api_key": {"type": "string", "description": "API key (snp_sk_live_...)"},
                 },
                 "required": ["agent_id", "api_key"],

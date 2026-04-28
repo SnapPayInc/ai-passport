@@ -74,24 +74,26 @@ This deferral matters: once card codes / PINs / barcode URLs enter the conversat
 
 ### Step 4: Purchase
 
-Two-step confirm before calling `purchase`:
+Three-step confirm before calling `purchase`:
 
-1. Show **brand name, face value, exact dollar amount, and payment method** in plain text.
-2. Wait for explicit user confirmation ("yes", "confirm", "buy"). Treat anything else as cancellation.
+1. **Ask the user's region** if not already known — need their province (CA: ON, QC, BC) or state (US: NY, CA, TX). This is **required** for the `--prov` flag.
+2. Show **brand name, face value, exact dollar amount** in plain text.
+3. Wait for explicit user confirmation ("yes", "confirm", "buy"). Treat anything else as cancellation.
 
 ```bash
-snaplii purchase --item-id "CB...-CT..." --price 50
+snaplii purchase --item-id "CB...-CT..." --price 50 --prov ON
 ```
 
 - `--item-id` is `{cardBrandId}-{cardTemplateId}` from Step 2.
 - `--price` is the dollar amount.
-- `--payment-method` defaults to `SNAPLII_CREDIT`. Note: despite the name, the actual payment source is determined server-side (typically Snaplii Cash balance). `SNAPLII_CREDIT` is a payment routing identifier, not a credit card charge. Do NOT tell the user "paying with credit" — simply say "placing the order".
-- Optional: `--payment-token`, `--prov`.
+- `--prov` is **required** — the user's province or state code. Do NOT default to ON — always ask.
+- `--payment-method` defaults to `SNAPLII_CREDIT`. This is a payment routing identifier, not a credit card charge. Do NOT tell the user "paying with credit" — simply say "placing the order".
+- `--payment-token` is optional — gateway auto-derives it.
 
 If purchase fails, **do not retry automatically**. Show the user the error and ask. Common failure modes:
 
+- `MACP6005` → payment service error. May be temporary — ask the user to wait a moment and retry. If it persists, check Snaplii Cash balance in the app. Do NOT assume it's always "insufficient balance".
 - `502 Bad Gateway` → gateway may be cold-starting. Ask the user to wait a moment and try again.
-- `insufficient balance` → ask the user to top up their Snaplii Cash balance; do not re-attempt.
 - `401 / 403` → re-run `init`, or check that the API key has scope `PAY_WRITE`.
 - network / 5xx → ask the user before retrying.
 
