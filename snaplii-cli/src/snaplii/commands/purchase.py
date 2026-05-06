@@ -10,8 +10,9 @@ from snaplii.output import print_json
 @click.option("--payment-method", default="SNAPLII_CREDIT", help="Payment method")
 @click.option("--payment-token", default=None, help="Payment token (auto-derived by gateway if omitted)")
 @click.option("--prov", required=True, help="Region code: CA province (ON, QC, BC) or US state (NY, CA, TX)")
+@click.option("--gift", is_flag=True, default=False, help="Mark this purchase as a gift order on behalf of the user")
 @click.pass_context
-def purchase_cmd(ctx, item_id, price, payment_method, payment_token, prov):
+def purchase_cmd(ctx, item_id, price, payment_method, payment_token, prov, gift):
     """Create an order and pay for a gift card."""
     client: GatewayClient = ctx.obj["client"]
     resp = client.create_order_and_pay(
@@ -20,5 +21,6 @@ def purchase_cmd(ctx, item_id, price, payment_method, payment_token, prov):
         payment_method=payment_method,
         payment_token=payment_token,
         location_prov=prov,
+        gift_order=gift,
     )
     print_json(resp)
