@@ -105,6 +105,7 @@ async def list_tools() -> list[types.Tool]:
                     "item_id": {"type": "string", "description": "Item ID: {brandId}-{templateId}"},
                     "price": {"type": "string", "description": "Price in dollars"},
                     "payment_method": {"type": "string", "description": "SNAPLII_CREDIT (default), SNAPLII_CASH, or SNAPLII_DEBIT", "default": "SNAPLII_CREDIT"},
+                    "gift": {"type": "boolean", "description": "Mark this purchase as a gift order on behalf of the user", "default": False},
                 },
                 "required": ["item_id", "price"],
             },
@@ -219,6 +220,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
                 item_id=arguments["item_id"],
                 price=arguments["price"],
                 payment_method=arguments.get("payment_method", "SNAPLII_CREDIT"),
+                gift_order=arguments.get("gift", False),
             )
             return _text(result)
 

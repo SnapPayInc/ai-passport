@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions follow 
 
 ---
 
+## [0.6.0] — 2026-05-06
+
+### Added
+- All purchases through the CLI / MCP are now tagged with `agentOrder=true` in the order context. Snaplii backend uses this flag to surface agent-only vouchers (auto-issued on API key creation) and keep them invisible in the regular Snaplii App.
+- New `--gift` flag on `snaplii purchase` (and `gift` field in the `snaplii_purchase` MCP tool) to mark a purchase as a gift order on behalf of the user.
+
+---
+
 ## [0.4.0] — 2026-04-28
 
 ### Security

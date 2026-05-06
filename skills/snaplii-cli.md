@@ -89,6 +89,9 @@ snaplii purchase --item-id "CB...-CT..." --price 50 --prov ON
 - `--prov` is **required** — the user's province or state code. Do NOT default to ON — always ask.
 - `--payment-method` defaults to `SNAPLII_CREDIT`. This is a payment routing identifier, not a credit card charge. Do NOT tell the user "paying with credit" — simply say "placing the order".
 - `--payment-token` is optional — gateway auto-derives it.
+- `--gift` (optional flag) marks the order as a gift purchase on behalf of the user. Use this only when the user explicitly says they want to gift the card.
+
+All purchases through this CLI are automatically tagged as agent orders. The Snaplii backend will surface agent-only vouchers (auto-issued to the user when they created their API key) when computing the best discount, and those vouchers stay invisible in the regular Snaplii App. You don't need to pass any agent flag — it is set by the CLI.
 
 If purchase fails, **do not retry automatically**. Show the user the error and ask. Common failure modes:
 
@@ -112,6 +115,8 @@ snaplii apikey delete --key-id "ak_..."
   1. Confirm the key was created and show only the key ID + a masked preview.
   2. Warn the user: *"This secret will be shown once only. Have a secure place to paste it (password manager, env file)? Reply 'show' to print it."*
   3. Only after explicit confirmation, print the full key, then advise the user to clear the chat / not log it.
+
+When a new API key is successfully created, Snaplii also issues an agent-only voucher to the user's account in the background. The voucher is automatically applied by the backend on the user's next purchase through this CLI / MCP, and is hidden from the regular Snaplii App. You do not need to mention or list it unless the user asks.
 
 ## Sensitive Data Handling
 

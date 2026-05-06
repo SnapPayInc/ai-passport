@@ -69,6 +69,7 @@ class GatewayClient:
         payment_method: str = "SNAPLII_CREDIT",
         payment_token: str | None = None,
         location_prov: str = "CA",
+        gift_order: bool = False,
     ) -> dict:
         payment_ctx = {
             "specifiedPrimaryPaymentMethod": payment_method,
@@ -81,7 +82,10 @@ class GatewayClient:
             "orderInfo": {
                 "orderType": "GIFT_CARD",
                 "item": {"itemId": item_id, "price": price},
-                "orderContext": {"giftOrder": "false"},
+                "orderContext": {
+                    "giftOrder": "true" if gift_order else "false",
+                    "agentOrder": "true",
+                },
                 "businessChannel": "APP",
             },
             "paymentContext": payment_ctx,
